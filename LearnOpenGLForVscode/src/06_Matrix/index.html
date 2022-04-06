@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/css/ol.css" type="text/css">
+    <style>
+        .map {
+            height: 400px;
+            width: 100%;
+        }
+
+        body,
+        html,
+        #map {
+            /*:root等同html*/
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
+    <title>OpenLayers example</title>
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+</head>
+
+<body>
+    <h2>My Map</h2>
+    <div id="map" class="map"></div>
+    <script type="text/javascript">
+        var map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            view: new ol.View({
+                projection: 'EPSG:4326',
+                center: [116.65472439, 40.3266997],
+                zoom: 15
+            })
+        });
+        //实例化一个矢量图层Vector作为绘制层
+        var source = new ol.source.Vector({});
+        //创建一个图层
+        var vector = new ol.layer.Vector({
+            source: source
+        });
+        //将绘制层添加到地图容器中
+        map.addLayer(vector);
+        var select = new ol.interaction.Select({
+            layers: [vector]
+        });
+        select.on("select", function (e) {
+            var features = e.selected;
+            var feature = features[0];
+            var coord = feature.getGeometry().flatCoordinates;
+            alert(feature.feaindex + "坐标:" + coord)
+
+        });
+        map.addInteraction(select);
+
+        const distance = 500;//缓冲距离
+        var gsonline = turf.lineString([
+            [116.64857357, 40.34242833], //中长末有弧度
+            [116.64937342, 40.33977732],
+            [116.65049589, 40.33606066],
+            [116.65077459, 40.33519555],
+            [116.65093179, 40.33478405],
+            [116.65114655, 40.33428855],
+            [116.65130547, 40.33394],
+            [116.65149568, 40.33355718],
+            [116.65397639, 40.32861981],
+            [116.65411978, 40.32832554],
+            [116.65431611, 40.32791966],
+            [116.6544578, 40.32759818],
+            [116.65456799, 40.32730448],
+            [116.65466013, 40.32699343],
+            [116.65472439, 40.3266997],
+            [116.65476387, 40.32643695],
+            [116.65478521, 40.32619363],
+            [116.6547932, 40.3259567],
+            [116.65478666, 40.3257516],
+            [116.65473304, 40.32526792],
+            [116.65463298, 40.3248265],
+            [116.6545794, 40.32465214],
+            [116.65446041, 40.32432465],
+            [116.65433089, 40.32404329],
+            [116.65426838, 40.32392293],
+            [116.65418863, 40.32377746],
+            [116.6540222, 40.32350432],
+            [116.65390623, 40.32332478],
+            [116.65366096, 40.32297073],
+            [116.65335951, 40.32253872]
+            // [116.59776938, 39.89350928], //右短大弧度
+            // [116.59775859, 39.89362832],
+            // [116.5977547, 39.89371479],
+            // [116.59775991, 39.89383298],
+            // [116.59777033, 39.89392852],
+            // [116.59780296, 39.89408758],
+            // [116.59784609, 39.89422136],
+            // [116.59802069, 39.89455703],
+            // [116.59805801, 39.89460933],
+            // [116.59813816, 39.89470988],
+            // [116.59829864, 39.89487706],
+            // [116.59839519, 39.8949618],
+            // [116.59850324, 39.89504303],
+            // [116.59855106, 39.89507607],
+            // [116.59864491, 39.89513611],
+            // [116.59878878, 39.89521651],
+            // [116.59899097, 39.89531146],
+            // [116.59929692, 39.89541717],
+            // [116.59949612, 39.89546544],
+            // [116.59951543, 39.89546952],
+            // [116.5996655, 39.89549504]
+            /* [116.62422254, 39.90157596], //斜短直线
+            [116.62449521, 39.90186347],
+            [116.62477666, 39.90215777],
+            [116.62492973, 39.9023179],
+            [116.6252082, 39.9026153],
+            [116.62541611, 39.90283454],
+            [116.62557109, 39.90299992],
+            [116.62580951, 39.90325537],
+            [116.62603173, 39.90349177],
+            [116.62624441, 39.90371721],
+            [116.62648237, 39.90396696],
+            [116.62667742, 39.90417381],
+            [116.62691872, 39.90442928],
+            [116.62715144, 39.90467189],
+            [116.62735793, 39.90489447],
+            [116.62761641, 39.90516759],
+            [116.62779573, 39.90535538],
+            [116.62800747, 39.90557798],
+            [116.6281763, 39.90575577],
+            [116.62843002, 39.90602602],
+            [116.62866323, 39.90627436] */
+        ])
+        const fline = (new ol.format.GeoJSON()).readFeature(gsonline)
+        // source.addFeature(fline)
+
+        const endindex = gsonline.geometry.coordinates.length - 1;
+
+        // 线的起点的左边
+        var lsl = turf.transformRotate(gsonline, -90, {
+            pivot: gsonline.geometry.coordinates[0]
+        });
+        const flsl = (new ol.format.GeoJSON()).readFeature(lsl)
+
+        // 线的起点的右边
+        var lsr = turf.transformRotate(gsonline, 90, { //左
+            pivot: gsonline.geometry.coordinates[0]
+        });
+        const flsr = (new ol.format.GeoJSON()).readFeature(lsr)
+
+        // 线的终点的左边
+        var lel = turf.transformRotate(gsonline, 90, { //左
+            pivot: gsonline.geometry.coordinates[endindex]
+        });
+        const flel = (new ol.format.GeoJSON()).readFeature(lel)
+
+        // 线的终点的右边
+        var ler = turf.transformRotate(gsonline, -90, {
+            pivot: gsonline.geometry.coordinates[endindex]
+        });
+        const fler = (new ol.format.GeoJSON()).readFeature(ler)
+
+        fline.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                width: 1,
+                color: 'blue'
+            })
+        }))
+        flsl.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                width: 4,
+                color: 'blue'
+            })
+        }))
+        flsr.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                width: 4,
+                color: 'lightblue'
+            })
+        }))
+        flel.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                width: 4,
+                color: 'green'
+            })
+        }))
+        fler.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                width: 4,
+                color: 'lightgreen'
+            })
+        }))
+        // source.addFeatures([flsl, flsr, flel, fler])
+
+        var buffered = turf.buffer(gsonline, distance, {
+            units: 'meters'
+        });
+        if (buffered.geometry.coordinates.length > 1) {
+            alert('缓冲区半径太大')
+        }
+        // 原始圆头buffer
+        const fbuffered = (new ol.format.GeoJSON()).readFeature(buffered)
+        // source.addFeature(fbuffered)
+
+        // 构建buffer为点featureCollection
+        var bufferedtoline = turf.polygonToLine(buffered);
+        let pointsarr = [];
+        bufferedtoline.geometry.coordinates.forEach((coord) => {
+            const point = turf.point(coord);
+            pointsarr.push(point)
+        })
+        var points = turf.featureCollection(pointsarr);
+
+        // 遍历找出4个点(垂线与buffer相交的点)
+        const four_gline = [lsl, lel, lsr, ler] //lel, lsr肯定是在一侧的
+        let intersectpointarr = [];
+        four_gline.forEach((i) => {
+            var intersects = turf.lineIntersect(i, buffered);
+            const intersectpoint = intersects.features[0];
+            intersectpointarr.push(intersectpoint);
+            /*
+            const intersectpointcoord = intersectpoint.geometry.coordinates;
+             [116.62349715262076, 39.90198246481177]
+            [116.62494779010444, 39.901169529973416]
+            [116.62793453594136, 39.906677301682436]
+            [116.62939194735168, 39.90587140286378]
+            */
+        })
+        if (!intersectpointarr[0]) {
+            alert('实时预览超出支持的范围')
+        }
+
+        let four_index = [];
+        let intersectNearestOnBufferPointCoordArr = []; //前两个是在一侧的
+        intersectpointarr.forEach((i) => {
+            var nearest = turf.nearestPoint(i, points);
+            intersectNearestOnBufferPointCoordArr.push(nearest.geometry.coordinates);
+            const feaindex = nearest.properties.featureIndex;
+            four_index.push(feaindex);
+            // console.log(nearest.geometry.coordinates)
+            const fi = (new ol.format.GeoJSON()).readFeature(i);
+            fi.feaindex = feaindex;
+            // 红色的点的垂线的交点
+            fi.setStyle(new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: 2,
+                    fill: new ol.style.Fill({
+                        color: 'red'
+                    })
+                })
+            }))
+            source.addFeature(fi)
+        })
+
+        const issideobj1 = {};
+        issideobj1[four_index[0]] = true;
+        issideobj1[four_index[1]] = true;
+        issideobj1[four_index[2]] = false;
+        issideobj1[four_index[3]] = false;
+        console.log('圆头时四个顶点的index');
+        four_index.sort((a, b) => {
+            return a - b
+        });
+        console.log(four_index); //[0, 25, 41, 57]
+        if (four_index[0] === 0) {
+            four_index.splice(0, 1, pointsarr.length - 1)
+            four_index.sort((a, b) => {
+                return a - b
+            });
+        }
+        // 判断特殊 | 正常
+        const bufferedcoordarry = buffered.geometry.coordinates[0];
+        if (issideobj1[four_index[0]] && issideobj1[four_index[1]]) {
+            const splicetoplen = four_index[2] - four_index[1] - 1
+            const splicebtmlen = four_index[0] + bufferedcoordarry.length - four_index[3]
+            // console.log('切掉上圆头');
+            bufferedcoordarry.splice(four_index[1] + 1, splicetoplen)
+
+            // 确定下圆头从哪开始切
+            // console.log('切掉下圆头');
+            bufferedcoordarry.splice(four_index[3] - splicetoplen + 1)
+            bufferedcoordarry.splice(0, four_index[0])
+            // source.addFeature((new ol.format.GeoJSON()).readFeature(buffered))
+        } else {
+            const splicetoplen = four_index[1] - four_index[0] - 1
+            const splicebtmlen = four_index[3] - four_index[2] - 1
+            // console.log('切掉上圆头');
+            bufferedcoordarry.splice(four_index[0] + 1, splicetoplen)
+
+            // 确定下圆头从哪开始切
+            let start = four_index[2] + 1;
+            if (four_index[0] > four_index[2]) {
+                start = four_index[2] + 1;
+            } else {
+                start = Math.abs(four_index[2] + 1 - splicetoplen);
+            }
+
+            // console.log('切掉下圆头');
+            bufferedcoordarry.splice(start, splicebtmlen)
+            // source.addFeature((new ol.format.GeoJSON()).readFeature(buffered))
+        }
+
+
+        // 得到平头buffer
+        const fbuffered2 = (new ol.format.GeoJSON()).readFeature(buffered)
+
+        /*截取左线
+        右线--此时bufferedcoordarry是平头的了-------------------------------------------------------------------------------------*/
+        // 平头之后 buffer上四个距离交点最近的点的index发生了变化
+        let newIndexarr = []; //前两个是在一侧的
+        intersectNearestOnBufferPointCoordArr.forEach(intersectpointcoord => {
+            const index = bufferedcoordarry.findIndex((bufferedcoord) => {
+                return (bufferedcoord[0] === intersectpointcoord[0] &&
+                    bufferedcoord[1] === intersectpointcoord[1])
+
+            })
+            newIndexarr.push(index)
+        });
+        intersectNearestOnBufferPointCoordArr.forEach((intersectpointcoord, index) => {
+            const point = turf.point(intersectpointcoord);
+            const fpoint = (new ol.format.GeoJSON()).readFeature(point);
+            fpoint.feaindex = newIndexarr[index];
+            // 黑色的点是buffer上四个距离交点最近的点
+            fpoint.setStyle(new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: 7,
+                    fill: new ol.style.Fill({
+                        color: 'black'
+                    })
+                })
+            }))
+            source.addFeature(fpoint)
+        })
+
+        /*
+        0: 78
+        1: 79
+        2: 437
+        3: 438 */
+        //排序前先标记在一侧的
+        const issideobj2 = {};
+        issideobj2[newIndexarr[0]] = true;
+        issideobj2[newIndexarr[1]] = true;
+        issideobj2[newIndexarr[2]] = false;
+        issideobj2[newIndexarr[3]] = false;
+        /* 27: true
+        28: false
+        55: true
+        56: false */
+        console.log('平头时四个顶点的index');
+        console.log(newIndexarr);
+        newIndexarr.sort((a, b) => {
+            return a - b
+        }); //a>b 即return true, 就交互ab位置
+        if (newIndexarr[0] === 0) {
+            newIndexarr.splice(0, 1, bufferedcoordarry.length - 1)
+            newIndexarr.sort((a, b) => {
+                return a - b
+            });
+        } // [5, 6, 26, 27] 特殊5,6才是左线
+        //[27, 28, 55, 56] 正常28,55是左线
+        let rbuffline, slice1, slice2, lbuffline;
+        // 判断特殊 | 正常
+        if (issideobj2[newIndexarr[0]] && issideobj2[newIndexarr[1]]) {
+            // 截取右线
+            rbuffline = bufferedcoordarry.slice(newIndexarr[0], newIndexarr[1] + 1);
+            // 截取左线
+            lbuffline = bufferedcoordarry.slice(newIndexarr[2], newIndexarr[3] + 1);
+        } else {
+            // 截取右线
+            rbuffline = bufferedcoordarry.slice(newIndexarr[1], newIndexarr[2] + 1);
+            // 截取左线
+            slice1 = bufferedcoordarry.slice(0, newIndexarr[0] + 1);
+            slice2 = bufferedcoordarry.slice(newIndexarr[3], bufferedcoordarry.length);
+            lbuffline = slice2.concat(slice1);
+        }
+
+        // source.addFeature((new ol.format.GeoJSON()).readFeature(turf.lineString(rbuffline)))
+        // source.addFeature((new ol.format.GeoJSON()).readFeature(turf.lineString(lbuffline)))
+        /*---------------------------------------------------------------------------------------*/
+        /*----构建左/右buffer polygon-----------------------------------------------------------------------------------*/
+        const gsonline1 = JSON.parse(JSON.stringify(gsonline));
+        const gsonline2 = JSON.parse(JSON.stringify(gsonline));
+        /*----------------右线跟主线拼接 构建右 buffer polygon-----------------------------------------------------------------------*/
+        const gsonlinecoords1 = gsonline1.geometry.coordinates; //主线坐标
+        const startgsonlinecoords1 = gsonlinecoords1[0]
+        const endgsonlinecoords1 = gsonlinecoords1[gsonlinecoords1.length - 1]
+        const startrbuffline = rbuffline[0]
+        const endrbuffline = rbuffline[rbuffline.length - 1]
+        var ee1 = turf.point(endgsonlinecoords1);
+        var s1 = turf.point(startrbuffline);
+        var e1 = turf.point(endrbuffline);
+        var ees1 = turf.distance(ee1, s1, {
+            units: 'meters'
+        });
+        var eee1 = turf.distance(ee1, e1, {
+            units: 'meters'
+        });
+        if (ees1 <= eee1) {
+            rbuffline.reverse()
+        }
+        gsonlinecoords1.splice(gsonlinecoords1.length, 0, ...(rbuffline.reverse())) //拼接坐标进主线坐标
+        const flinel = (new ol.format.GeoJSON()).readFeature(gsonline1)
+        gsonlinecoords1.push(gsonlinecoords1[0]) //缺口封闭
+        var rbuf = turf.polygon([
+            gsonlinecoords1
+        ])
+        const frbuf = (new ol.format.GeoJSON()).readFeature(rbuf)
+        /*-----------------左线跟主线拼接 构建左 buffer polygon----------------------------------------------------------------------*/
+        const gsonlinecoords2 = gsonline2.geometry.coordinates; //主线坐标
+        const startgsonlinecoords2 = gsonlinecoords2[0]
+        const endgsonlinecoords2 = gsonlinecoords2[gsonlinecoords2.length - 1]
+        const startlbuffline = lbuffline[0]
+        const endlbuffline = lbuffline[lbuffline.length - 1]
+        var ee2 = turf.point(endgsonlinecoords2);
+        var s2 = turf.point(startlbuffline);
+        var e2 = turf.point(endlbuffline);
+        var ees2 = turf.distance(ee2, s2, {
+            units: 'meters'
+        });
+        var eee2 = turf.distance(ee2, e2, {
+            units: 'meters'
+        });
+        if (ees2 >= eee2) {
+            lbuffline.reverse()
+        }
+        gsonlinecoords2.splice(gsonlinecoords2.length, 0, ...(lbuffline)) //拼接坐标进主线坐标
+        const fliner = (new ol.format.GeoJSON()).readFeature(gsonline2)
+        gsonlinecoords2.push(gsonlinecoords2[0]); //缺口封闭
+        var lbuf = turf.polygon([
+            gsonlinecoords2
+        ])
+        const flbuf = (new ol.format.GeoJSON()).readFeature(lbuf)
+        source.addFeature((new ol.format.GeoJSON()).readFeature(rbuf))
+        source.addFeature((new ol.format.GeoJSON()).readFeature(lbuf))
+        /*---------------------------------------------------------------------------------------*/
+
+        // var gl = turf.polygon([
+        //     [
+
+        //         [116.62793434119509, 39.906677132190524], //54左上角
+        //         [116.62349613555897, 39.90198139240297], //172左下角
+        //         [116.62494894444106, 39.90117052519812], //140右下角
+        //         [116.62939211880494, 39.905871585441524], //86右上角
+        //         [116.62793434119509, 39.906677132190524]
+        //     ]
+        // ])
+        // const fl = (new ol.format.GeoJSON()).readFeature(gl)
+
+        fbuffered2.setStyle(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                width: 4,
+                color: "red"
+            }),
+        }))
+
+        //,fbuffered,, flinel, frbuf, fbuffered2, flbuf
+    </script>
+</body>
+
+</html>

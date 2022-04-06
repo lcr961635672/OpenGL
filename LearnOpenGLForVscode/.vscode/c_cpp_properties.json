@@ -6,11 +6,8 @@
                 "I:/soft/MinGW/include/**",
                 "${workspaceFolder}/include"
             ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
+            "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
+            "windowsSdkVersion": "8.1",
             "compilerPath": "I:/soft/MinGW/bin/g++.exe",
             "cStandard": "c17",
             "cppStandard": "c++17",
